@@ -1,15 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { formatPhoneNumber } from '../utils/formatPhoneNumber';
-
-interface ClientData {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-}
+import { TableData } from '../utils/interfaces';
 
 interface TableProps {
-  data: ClientData[];
+  data: TableData[];
   tableSelectedIds: (ids: number[]) => void;
 }
 

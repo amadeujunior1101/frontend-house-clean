@@ -1,21 +1,17 @@
-// Modal.tsx
 import React, { useState, ChangeEvent, useEffect } from 'react';
 import { MapComponent } from './Map';
 import { apiClient } from '../service';
 import { convertToCartesian } from '../utils/convertToCartesian';
+import { addedMaskPhoneNumber } from '../utils/addedMaskPhoneNumber';
+import { FormData, IErrors } from '../utils/interfaces';
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
+  load: () => void;
 }
 
-interface FormData {
-  name: string;
-  email: string;
-  phone: string;
-}
-
-const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose }) => {
+const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose, load }) => {
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -24,6 +20,7 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose }) => {
 
   const [modalCoordinates, setModalCoordinates] = useState<[number, number] | null>(null);
   const [convertedCoordinates, setConvertedCoordinates] = useState<[number, number]>();
+  const [errors, setErrors] = useState<IErrors[]>([]);
 
   const handleMarkerClick = (coordinates: [number, number]) => {
     setModalCoordinates(coordinates);
@@ -37,6 +34,7 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose }) => {
         email: '',
         phone: '',
       });
+    setErrors([])
   }
 
   const createClient = async (formData: FormData) => {
@@ -45,7 +43,7 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose }) => {
       await apiClient.post('/clients', {
             name: formData.name,
             email: formData.email,
-            phone: formData.phone,
+            phone: formData.phone.replace(/\D/g, ''),
             coordinate_x: convertedCoordinates?.[0],
             coordinate_y: convertedCoordinates?.[1],
         },
@@ -54,22 +52,30 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             'Content-Type': 'application/json',
         },
     });
+
+    cleanFields();
+    load();
+    onClose();
   
-    } catch (error) {
-      console.error("Erro ao buscar dados:", error);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (error.response?.data) {
+        setErrors(error.response.data);
+      } else {
+        console.error('Erro ao buscar dados:', error);
+      }
     }
   };
   
-
   const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    const formattedValue = name === 'phone' ? addedMaskPhoneNumber(value) : value;
+
+    setFormData((prevData) => ({ ...prevData, [name]: formattedValue }));
   };
 
   const handleSubmit = (): void => {
     createClient(formData)
-    cleanFields();
-    onClose();
   };
 
   const handleKeyPress = (e: KeyboardEvent): void => {
@@ -105,6 +111,11 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             onChange={handleChange}
             className="mt-1 p-2 w-full border-2 border-gray-300 rounded-md"
           />
+          {errors.find((error) => error.property === 'name') && (
+            <label htmlFor="name" className="block text-sm font-medium text-red-600">
+              {errors.find((error) => error.property === 'name')?.constraints.isNotEmpty}
+            </label>
+          )}
         </div>
         <div className="mb-4">
           <label htmlFor="email" className="block text-sm font-medium text-gray-600">
@@ -118,6 +129,11 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             onChange={handleChange}
             className="mt-1 p-2 w-full border-2 border-gray-300 rounded-md"
           />
+         {errors.find((error) => error.property === 'email') && (
+              <label htmlFor="email" className="block text-sm font-medium text-red-600">
+                {errors.find((error) => error.property === 'email')?.constraints.isEmail}
+              </label>
+          )}
         </div>
         <div className="mb-4">
           <label htmlFor="phone" className="block text-sm font-medium text-gray-600">
@@ -131,11 +147,31 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             onChange={handleChange}
             className="mt-1 p-2 w-full border-2 border-gray-300 rounded-md"
           />
+          {errors.find((error) => error.property === 'phone') && (
+            <>
+              <label htmlFor="phone" className="block text-sm font-medium text-red-600">
+                {errors.find((error) => error.property === 'phone')?.constraints.isNotEmpty}
+              </label>
+              <label htmlFor="phone" className="block text-sm font-medium text-red-600">
+                {errors.find((error) => error.property === 'phone')?.constraints.matches}
+              </label>
+            </>
+          )}
         </div>
             <div>
             <h3>Coordenadas do Ponto Marcado:</h3>
             <p>Latitude: {modalCoordinates?.[0]}</p>
+            {errors.find((error) => error.property === 'coordinate_x') && (
+              <label htmlFor="coordinate_x" className="block text-sm font-medium text-red-600">
+                {errors.find((error) => error.property === 'coordinate_x')?.constraints.isNotEmpty}
+              </label>
+            )}
             <p>Longitude: {modalCoordinates?.[1]}</p>
+            {errors.find((error) => error.property === 'coordinate_y') && (
+              <label htmlFor="coordinate_y" className="block text-sm font-medium text-red-600">
+                {errors.find((error) => error.property === 'coordinate_y')?.constraints.isNotEmpty}
+              </label>
+            )}
             </div>
         <div className="mb-4">
             <MapComponent handleMarkerClick={handleMarkerClick}/>

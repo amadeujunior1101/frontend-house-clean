@@ -5,26 +5,7 @@ import {Table} from '../components/Table';
 import {ModalComponent} from '../components/Modal';
 import { SearchBar } from '../components/SearchBar';
 import { VerticalAssistantModal } from '../components/VerticalAssistantModal';
-
-interface ClientData {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  coordinate_x: string;
-  coordinate_y: string;
-}
-
-interface ClientDistance{
-  name: string;
-  latitude: string;
-  longitude: string;
-}
-
-interface User {
-  name: string;
-  pos: number
-}
+import { ClientData, ClientDistance, ClientSearchParams, User } from '../utils/interfaces';
 
 const HomeScreen = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -45,9 +26,6 @@ useEffect(() => {
   getClients({filter: undefined})
   // eslint-disable-next-line react-hooks/exhaustive-deps
 }, []);
-interface ClientSearchParams {
-  filter?: string;
-}
 
 const getClients = async (searchParams: ClientSearchParams) => {
   try {
@@ -58,7 +36,7 @@ const getClients = async (searchParams: ClientSearchParams) => {
       },
     });
 
-    setTableData(response.data)
+    setTableData(response.data.data)
 
   } catch (error) {
     console.error("Erro ao buscar dados:", error);
@@ -100,7 +78,7 @@ const handleOpenAssistantModal = (): void => {
   setModalAssistant(true);
   const filteredData = tableData.filter(item => selectedIds.includes(item.id));
 
-  const newArray = filteredData.map(({ name, coordinate_x, coordinate_y }) => ({ name, latitude: coordinate_x, longitude: coordinate_y }));
+  const newArray = filteredData.map(({ name, coordinate_x, coordinate_y, phone }) => ({ name, latitude: coordinate_x, longitude: coordinate_y, phone }));
 
   getRoute(newArray)
 };
@@ -108,6 +86,10 @@ const handleOpenAssistantModal = (): void => {
 const handleCloseAssistantModal= (): void => {
   setModalAssistant(false);
 };
+
+const load =() => {
+  getClients({filter: ''})
+}
 
   return (
     <div className="w-full">
@@ -118,7 +100,7 @@ const handleCloseAssistantModal= (): void => {
       <div className="mx-auto flex items-center pt-3 pb-3 sm:px-2 md:px-2 lg:px-2 xl:px-0 max-w-1280 padding_mobile">
       <SearchBar onSearch={handleSearch} onClean={cleaned}/>
       </div>   
-      <ModalComponent isOpen={modalOpen} onClose={handleCloseModal} />
+      <ModalComponent isOpen={modalOpen} onClose={handleCloseModal} load={load}/>
       <VerticalAssistantModal isOpen={modalAssistant} onClose={handleCloseAssistantModal} data={bestRoute}/>
       <div className="mx-auto flex items-center pt-3 pb-3 sm:px-2 md:px-2 lg:px-2 xl:px-0 max-w-1280 padding_mobile">
         <Table data={tableData} tableSelectedIds={tableSelectedIds}/>

@@ -1,8 +1,10 @@
 import React from "react";
+import { formatPhoneNumber } from "../utils/formatPhoneNumber";
 
 interface User {
     name: string;
-    pos: number
+    pos: number;
+    phone: string;
 }
 
 interface Route {
@@ -31,7 +33,7 @@ const VerticalAssistant: React.FC<Route> = ({data}) => {
                 {step.name}
               </div>
               <div className={`text-gray-600 text-gray-700'}`}>
-                {step.pos}
+                {formatPhoneNumber(step.phone)} 
               </div>
             </div>
           </div>

@@ -1,10 +1,10 @@
-# Movie +
+# House Clean
 
 Este projeto utiliza as seguintes tecnologias:
 
 - React.js
 - Typescript
-- Vite
+- Axios
 - TailwindUI
 - api de filmes da TMDB
 
@@ -14,11 +14,11 @@ Este projeto utiliza as seguintes tecnologias:
 
 1 - clone do repositorio: 
 
-  git clone https://github.com/amadeujunior1101/movie-plus
+  git clone https://github.com/amadeujunior1101/frontend-house-clean
 
 2 - acesse a pasta:
 
-  cd movie-plus
+  cd frontend-house-clean
 
 3 - baixe as dependências:
 
@@ -26,10 +26,10 @@ Este projeto utiliza as seguintes tecnologias:
 
 4 - crie o arquivo .env na raíz do projeto e set os valores referentes logo abaixo:
 
-	VITE_API_URL=https://api.themoviedb.org/3
-
-  VITE_API_TMDB_TOKEN=
+	VITE_API_URL=http://localhost:3000
+  VITE_API_LATITUDE=
+  VITE_API_LONGITUDE=
 	
-5 - na pasta movie-plus:
+5 - na pasta frontend-house-clean:
 
 	yarn dev ou npm run dev
