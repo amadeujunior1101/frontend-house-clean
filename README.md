@@ -6,7 +6,6 @@ Este projeto utiliza as seguintes tecnologias:
 - Typescript
 - Axios
 - TailwindUI
-- api de filmes da TMDB
 
 ## Executando a Aplicação
 
