@@ -5,7 +5,9 @@ Este projeto utiliza as seguintes tecnologias:
 - React.js
 - Typescript
 - Axios
+- Vite
 - TailwindUI
+- React-leaflet
 
 ## Executando a Aplicação
 
